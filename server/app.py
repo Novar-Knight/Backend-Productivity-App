@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_restful import Api
-from config import Config
-from extensions import db, migrate, bcrypt, jwt
-from resources import Signup, Login, Me, JournalList, JournalDetail
+from server.config import Config
+from server.extensions import db, migrate, bcrypt, jwt
+from server.resources import Signup, Login, Me, JournalList, JournalDetail
 
 def create_app():
     app = Flask(__name__)

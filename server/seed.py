@@ -1,6 +1,6 @@
-from app import app
+from server.app import app
 from extensions import db
-from models import User, JournalEntry
+from server.models import User, JournalEntry
 
 with app.app_context():
     db.create_all()

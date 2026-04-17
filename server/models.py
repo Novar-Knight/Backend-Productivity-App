@@ -1,4 +1,4 @@
-from extensions import db, bcrypt
+from server.extensions import db, bcrypt
 from datetime import datetime
 
 class User(db.Model):
@@ -26,3 +26,5 @@ class JournalEntry(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    
+    user = db.relationship("User", back_populates="entries")
