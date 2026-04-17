@@ -1,21 +1,15 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource ,request
 from models import db, User, JournalEntry
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
-# ---------- PARSERS ----------
-auth_parser = reqparse.RequestParser()
-auth_parser.add_argument("username", required=True)
-auth_parser.add_argument("password", required=True)
 
-entry_parser = reqparse.RequestParser()
-entry_parser.add_argument("title", required=True)
-entry_parser.add_argument("content", required=True)
-
-
-# ---------- AUTH ----------
+ # AUTH
 class Signup(Resource):
     def post(self):
-        data = auth_parser.parse_args()
+        data = request.get_json()
+        
+        if not data:
+            return {"message": "Missing JSON data"}, 400
 
         if User.query.filter_by(username=data["username"]).first():
             return {"message": "User already exists"}, 400
@@ -31,7 +25,10 @@ class Signup(Resource):
 
 class Login(Resource):
     def post(self):
-        data = auth_parser.parse_args()
+        data = request.get_json()
+        
+        if not data:
+            return {"message": "Missing JSON data"}, 400
 
         user = User.query.filter_by(username=data["username"]).first()
 
@@ -54,17 +51,18 @@ class Me(Resource):
         }, 200
 
 
-# ---------- JOURNAL CRUD ----------
+#  JOURNAL CRUD 
 class JournalList(Resource):
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
 
-        page = int(reqparse.request.args.get("page", 1))
-        per_page = int(reqparse.request.args.get("per_page", 5))
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+
 
         entries = JournalEntry.query.filter_by(user_id=user_id)\
-            .paginate(page=page, per_page=per_page)
+            .paginate( page=page, per_page=per_page)
 
         return {
             "items": [
@@ -73,11 +71,15 @@ class JournalList(Resource):
             ],
             "total": entries.total,
             "pages": entries.pages
-        }
+        },200
 
     @jwt_required()
     def post(self):
-        data = entry_parser.parse_args()
+        data = request.get_json()
+        
+        if not data:
+            return {"message": "Missing JSON data"}, 400
+
         user_id = get_jwt_identity()
 
         entry = JournalEntry(
@@ -101,7 +103,11 @@ class JournalDetail(Resource):
         if not entry:
             return {"message": "Not found"}, 404
 
-        data = entry_parser.parse_args()
+        data = request.get_json()
+        
+        if not data:
+            return {"message": "Missing JSON data"}, 400
+        
         entry.title = data["title"]
         entry.content = data["content"]
 

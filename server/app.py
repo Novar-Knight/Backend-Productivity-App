@@ -2,7 +2,6 @@ from flask import Flask
 from flask_restful import Api
 from config import Config
 from extensions import db, migrate, bcrypt, jwt
-
 from resources import Signup, Login, Me, JournalList, JournalDetail
 
 def create_app():
@@ -24,10 +23,25 @@ def create_app():
     # CRUD ROUTES
     api.add_resource(JournalList, "/journal")
     api.add_resource(JournalDetail, "/journal/<int:id>")
+    
+    #BASIC ROUTES 
+    @app.route("/")
+    def home():
+        return {"message": "Backend Productivity API is running"}, 200
+
+    
+     # ERROR HANDLERS 
+    @app.errorhandler(404)
+    def not_found(error):
+        return {"message": "Route not found"}, 404
+
+    @app.errorhandler(500)
+    def server_error(error):
+        return {"message": "Internal server error"}, 500
 
     return app
-
-
+    
+    
 app = create_app()
 
 if __name__ == "__main__":
